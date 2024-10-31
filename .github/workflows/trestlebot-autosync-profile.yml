@@ -2,12 +2,16 @@
 name: Trestle-bot autosync profile updates
 
 on:
-  pull_request:
+  push:
     branches:
       - main
     paths:
       - 'profiles/**'
       - 'markdown/profiles/**'
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
 
 jobs:
   autosync:
@@ -18,8 +22,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
       - name: Run autosync
         id: autosync
         uses: RedHatProductSecurity/trestle-bot/actions/autosync@main
@@ -27,4 +29,3 @@ jobs:
           markdown_path: "markdown/profiles"
           oscal_model: "profile"
           file_pattern: "*.json,markdown/*"
-          branch: ${{ github.head_ref }}
